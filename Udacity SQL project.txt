@@ -1,0 +1,33 @@
+Udacity SQL project
+
+category:      16
+actor:         200
+film:          1000
+film_category: 1000
+inventory:     4581
+film_actor:    5462
+rental:        16044
+
+
+
+1. Create a query that lists each movie, the film category it is classified in, and the number of times it has been rented out.
+
+Category, Film_Category, Inventory, Rental and Film
+Animation, Children, Classics, Comedy, Family and Music
+
+SELECT f.title film_title,
+       c.name category_name,
+       COUNT(r.inventory_id) rental_count
+FROM category c
+JOIN film_category fc ON fc.category_id = c.category_id
+JOIN film f ON f.film_id = fc.film_id
+JOIN inventory i ON i.film_id = f.film_id
+JOIN rental r ON r.inventory_id = i.inventory_id
+GROUP BY 1, 2
+HAVING c.name IN ('Animation', 'Children', 'Classics', 'Comedy', 'Music')
+ORDER BY 1
+
+
+2. how the length of rental duration of these family-friendly movies compares to the duration that all movies are rented for. 
+Can you provide a table with the movie titles and divide them into 4 levels (first_quarter, second_quarter, third_quarter, and final_quarter) based on the quartiles (25%, 50%, 75%) of the average rental duration(in the number of days) for movies across all categories? 
+Make sure to also indicate the category that these family-friendly movies fall into.
