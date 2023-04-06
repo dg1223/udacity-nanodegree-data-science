@@ -1,11 +1,15 @@
 Udacity SQL project
 
+staff:         2
+store:         2
 category:      16
 actor:         200
+customer:      599
 film:          1000
 film_category: 1000
 inventory:     4581
 film_actor:    5462
+payment:       14596
 rental:        16044
 
 
@@ -74,3 +78,154 @@ FROM cte
 GROUP BY 1, 2
 HAVING name IN ('Animation', 'Children', 'Classics', 'Comedy', 'Family', 'Music')
 ORDER BY 1, 2
+
+
+4. Write a query that returns the store ID for the store, the year and month and the number of rental orders each store has fulfilled for that month. Your table should include a column for each of the following: year, month, store ID and count of rental orders fulfilled during that month.
+
+
+-- question 1
+SELECT EXTRACT(MONTH FROM r.rental_date) Rental_month,
+       EXTRACT(YEAR FROM r.rental_date) Rental_year,
+       str.store_id Store_id,
+       COUNT(r.rental_id) Count_rentals
+FROM store str
+JOIN staff stf ON stf.store_id =  str.store_id
+JOIN rental r ON r.staff_id = stf.staff_id
+GROUP BY 1, 2, 3
+ORDER BY 4 DESC
+
+
+5. Can you write a query to capture the customer name, month and year of payment, and total payment amount for each month by these top 10 paying customers?
+
+
+-- question 2
+WITH top_10 AS
+-- extracting top 10 customers first
+(
+  WITH all_customers AS
+  (
+    SELECT c.customer_id,
+           CONCAT(c.first_name, ' ', c.last_name) fullname,
+           SUM(amount),
+           -- using rank to check if there are ties
+           RANK() OVER (ORDER BY SUM(amount) DESC) AS rank
+    FROM customer c
+    JOIN payment p ON p.customer_id = c.customer_id
+    GROUP BY 1
+    ORDER BY 3 DESC
+  )
+  SELECT customer_id,
+         fullname
+  FROM all_customers
+  WHERE rank <= 10
+)
+SELECT date_trunc('month', p.payment_date) pay_mon,
+       t.fullname,
+       COUNT(p.payment_id) pay_countpermon,
+       SUM(p.amount) pay_amount
+FROM top_10 t
+JOIN payment p ON p.customer_id = t.customer_id
+WHERE p.payment_date BETWEEN '2007-01-01' AND '2008-01-01'
+GROUP BY 1, 2
+ORDER BY 2, 1
+
+
+6. Finally, for each of these top 10 paying customers, I would like to find out the difference across their monthly payments during 2007. 
+
+Please go ahead and write a query to compare the payment amounts in each successive month. Repeat this for each of these 10 paying customers.
+
+Also, it will be tremendously helpful if you can identify the customer name who paid the most difference in terms of payments.
+
+-- question 3
+WITH top10_payment AS
+(
+  WITH top_10 AS
+  -- extracting top 10 customers first
+  (
+    WITH all_customers AS
+    (
+      SELECT c.customer_id,
+             CONCAT(c.first_name, ' ', c.last_name) fullname,
+             SUM(amount),
+             -- using rank to check if there are ties
+             RANK() OVER (ORDER BY SUM(amount) DESC) AS rank
+      FROM customer c
+      JOIN payment p ON p.customer_id = c.customer_id
+      GROUP BY 1
+      ORDER BY 3 DESC
+    )
+    SELECT customer_id,
+           fullname
+    FROM all_customers
+    WHERE rank <= 10
+  )
+  SELECT date_trunc('month', p.payment_date) pay_mon,
+         t.fullname,
+         COUNT(p.payment_id) pay_countpermon,
+         SUM(p.amount) pay_amount
+  FROM top_10 t
+  JOIN payment p ON p.customer_id = t.customer_id
+  WHERE p.payment_date BETWEEN '2007-01-01' AND '2008-01-01'
+  GROUP BY 1, 2
+  ORDER BY 2, 1
+)
+SELECT pay_mon,
+       fullname,
+       pay_countpermon,
+       pay_amount,
+       pay_amount - LAG(pay_amount) 
+        OVER (PARTITION BY fullname
+              ORDER BY pay_mon) monthly_difference
+FROM top10_payment
+
+
+-- question 3 (customer with most difference in payments)
+-- answer: Eleanor Hunt
+
+WITH payment_difference AS
+(
+  WITH top10_payment AS
+  (
+    WITH top_10 AS
+    -- extracting top 10 customers first
+    (
+      WITH all_customers AS
+      (
+        SELECT c.customer_id,
+               CONCAT(c.first_name, ' ', c.last_name) fullname,
+               SUM(amount),
+               -- using rank to check if there are ties
+               RANK() OVER (ORDER BY SUM(amount) DESC) AS rank
+        FROM customer c
+        JOIN payment p ON p.customer_id = c.customer_id
+        GROUP BY 1
+        ORDER BY 3 DESC
+      )
+      SELECT customer_id,
+             fullname
+      FROM all_customers
+      WHERE rank <= 10
+    )
+    SELECT date_trunc('month', p.payment_date) pay_mon,
+           t.fullname,
+           COUNT(p.payment_id) pay_countpermon,
+           SUM(p.amount) pay_amount
+    FROM top_10 t
+    JOIN payment p ON p.customer_id = t.customer_id
+    WHERE p.payment_date BETWEEN '2007-01-01' AND '2008-01-01'
+    GROUP BY 1, 2
+    ORDER BY 2, 1
+  )
+  SELECT pay_mon,
+         fullname,
+         pay_countpermon,
+         pay_amount,
+         pay_amount - LAG(pay_amount) 
+          OVER (PARTITION BY fullname
+                ORDER BY pay_mon) monthly_difference
+  FROM top10_payment
+)
+SELECT fullname
+FROM payment_difference
+WHERE monthly_difference = 
+    (SELECT MAX(monthly_difference) FROM payment_difference)
