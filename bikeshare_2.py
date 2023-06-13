@@ -2,6 +2,7 @@ import time
 import pandas as pd
 import numpy as np
 import os
+import calendar
 
 CITY_DATA = {
     "chicago": "chicago.csv",
@@ -220,9 +221,28 @@ def time_stats(df):
 
     # display the most common month
 
+    # Extract month from Start Time column
+    df["Month"] = df["Start Time"].dt.month
+    # Find the most common month
+    common_month = df["Month"].mode()[0]
+    # Convert month number to month name
+    common_month_name = calendar.month_name[common_month]
+    print("The most common month: ", common_month_name)
+
     # display the most common day of week
+    df["Day of Week"] = df["Start Time"].dt.dayofweek
+    # Find the most common day of week
+    common_day = df["Day of Week"].mode()[0]
+    # Convert day number to day name
+    common_day_name = calendar.day_name[common_day]
+    print("The most common day of week: ", common_day_name)
 
     # display the most common start hour
+    # Extract hour from Start Time column
+    df["Hour"] = df["Start Time"].dt.hour
+    # Find the most common start hour
+    common_hour = df["Hour"].mode()[0]
+    print("The most common start hour: ", common_hour)
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print("-" * 40)
@@ -279,7 +299,7 @@ def main():
         city, month, day = get_filters()
         df = load_data(city, month, day)
 
-        # time_stats(df)
+        time_stats(df)
         # station_stats(df)
         # trip_duration_stats(df)
         # user_stats(df)
