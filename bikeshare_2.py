@@ -356,6 +356,22 @@ def main():
         city, month, day = get_filters()
         df = load_data(city, month, day)
 
+        show_raw_data = input(
+            "\nWould you like to see 5 lines of raw data? Enter yes or no.\n"
+        )
+        show_raw_data = show_raw_data.lower()
+        start_row = 0
+        while show_raw_data == "yes":
+            print("\n")
+            print(df.iloc[start_row : start_row + 5])
+            start_row += 5
+            show_raw_data = input(
+                "\nWould you like to see the next 5 lines of raw data? Enter yes or no.\n"
+            )
+            show_raw_data = show_raw_data.lower()
+            if start_row >= len(df) or show_raw_data != "yes":
+                break
+
         # handle exception when no data is available
         if df.size > 0:
             time_stats(df)
