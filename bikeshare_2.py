@@ -315,10 +315,33 @@ def user_stats(df):
     start_time = time.time()
 
     # Display counts of user types
+    user_types = df["User Type"].value_counts()
+    print("Counts of User Types:")
+    for user_type, count in user_types.items():
+        print("{}: {}".format(user_type, count))
+    print()
 
-    # Display counts of gender
+    # Display counts of gender (excluding Washington)
+    if "Gender" in df.columns:
+        gender_counts = df["Gender"].value_counts()
+        print("Counts of Gender:")
+        for gender, count in gender_counts.items():
+            print("{}: {}".format(gender, count))
+        print()
+    else:
+        print("Gender data is not available for the selected city.")
 
-    # Display earliest, most recent, and most common year of birth
+    # Display earliest, most recent, and most common year of birth (excluding Washington)
+    if "Birth Year" in df.columns:
+        earliest_birth_year = int(df["Birth Year"].min())
+        most_recent_birth_year = int(df["Birth Year"].max())
+        most_common_birth_year = int(df["Birth Year"].mode()[0])
+        print("Birth Year Statistics:")
+        print("Earliest Birth Year:", earliest_birth_year)
+        print("Most Recent Birth Year:", most_recent_birth_year)
+        print("Most Common Birth Year:", most_common_birth_year)
+    else:
+        print("Birth Year data is not available for the selected city.")
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print("-" * 40)
@@ -332,7 +355,7 @@ def main():
         time_stats(df)
         station_stats(df)
         trip_duration_stats(df)
-        # user_stats(df)
+        user_stats(df)
 
         restart = input("\nWould you like to restart? Enter yes or no.\n")
         if restart.lower() != "yes":
