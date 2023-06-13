@@ -24,12 +24,14 @@ def validate_input(user_input, valid_values, value_dict, prompt):
     Returns:
         str: The validated user input.
     """
+
     while user_input.lower() not in valid_values:
         print("\n")
         print(f"Invalid input. Please enter a valid value as instructed.")
         print("\n")
         user_input = input(prompt)
 
+    user_input = user_input.lower()
     print("\n")
     chosen_value = value_dict.get(user_input, "Invalid value")
     print("You have chosen:", chosen_value)
@@ -58,7 +60,7 @@ def get_filters():
         "washington": "washington",
     }
 
-    city_prompt = "Enter the name of the city you want to analyze. Choose any of these 3 cities: chicago, new york, washington. Please enter the name exactly as shown.: "
+    city_prompt = "Enter the name of the city you want to analyze. Choose any of these 3 cities: chicago, new york, washington.: "
 
     city = validate_input(input(city_prompt), valid_cities, city_dict, city_prompt)
 
