@@ -280,9 +280,29 @@ def trip_duration_stats(df):
     print("\nCalculating Trip Duration...\n")
     start_time = time.time()
 
-    # display total travel time
+    # Display total travel time
+    total_travel_time = df["Trip Duration"].sum()
+    total_travel_time_formatted = pd.to_timedelta(total_travel_time, unit="s")
+    total_days = total_travel_time_formatted.days
+    total_hours, remainder = divmod(total_travel_time_formatted.seconds, 3600)
+    total_minutes, total_seconds = divmod(remainder, 60)
+    print(
+        "Total travel time: {} days, {} hours, {} minutes, {} seconds".format(
+            total_days, total_hours, total_minutes, total_seconds
+        )
+    )
 
-    # display mean travel time
+    # Display mean travel time
+    mean_travel_time = df["Trip Duration"].mean()
+    mean_travel_time_formatted = pd.to_timedelta(mean_travel_time, unit="s")
+    mean_days = mean_travel_time_formatted.days
+    mean_hours, remainder = divmod(mean_travel_time_formatted.seconds, 3600)
+    mean_minutes, mean_seconds = divmod(remainder, 60)
+    print(
+        "Mean travel time: {} days, {} hours, {} minutes, {} seconds".format(
+            mean_days, mean_hours, mean_minutes, mean_seconds
+        )
+    )
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print("-" * 40)
@@ -311,7 +331,7 @@ def main():
 
         time_stats(df)
         station_stats(df)
-        # trip_duration_stats(df)
+        trip_duration_stats(df)
         # user_stats(df)
 
         restart = input("\nWould you like to restart? Enter yes or no.\n")
