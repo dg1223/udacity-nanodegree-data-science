@@ -191,6 +191,11 @@ def load_data(city, month, day):
         month_num = month_dict.get(month)
         df = df[df["Month"] == month_num]
 
+        # Check if the resulting dataframe is empty after filtering for month
+        if df.empty:
+            print("There is no data available for the chosen month.")
+            return pd.DataFrame()  # Return an empty dataframe and jump to restart
+
     # Filter by day if applicable
     if day != "all":
         # Extract day of week from Start Time column
@@ -208,7 +213,15 @@ def load_data(city, month, day):
         day_num = day_dict.get(day)
         df = df[df["Day"] == day_num]
 
-    # print(df.head())
+        # Check if the resulting dataframe is empty after filtering for day
+        if df.empty:
+            print("There is no data available for the chosen day.")
+            return pd.DataFrame()  # Return an empty dataframe and jump to restart
+
+    # Check if the resulting dataframe is empty
+    if df.empty:
+        print("There is no data available for the chosen month or day or both.")
+        return pd.DataFrame()  # Return an empty dataframe
 
     return df
 
@@ -352,10 +365,14 @@ def main():
         city, month, day = get_filters()
         df = load_data(city, month, day)
 
-        time_stats(df)
-        station_stats(df)
-        trip_duration_stats(df)
-        user_stats(df)
+        # handle exception when no data is available
+        if df.size > 0:
+            time_stats(df)
+            station_stats(df)
+            trip_duration_stats(df)
+            user_stats(df)
+        else:
+            pass
 
         restart = input("\nWould you like to restart? Enter yes or no.\n")
         if restart.lower() != "yes":
