@@ -1,6 +1,7 @@
 import time
 import pandas as pd
 import numpy as np
+import os
 
 CITY_DATA = {
     "chicago": "chicago.csv",
@@ -25,9 +26,9 @@ def get_filters():
     valid_cities = ["chicago", "new york", "washington"]
 
     city_dict = {
-        "chicago": "Chicago",
-        "new york": "New York City",
-        "washington": "Washington",
+        "chicago": "chicago",
+        "new york": "new york city",
+        "washington": "washington",
     }
 
     # get user input for city (chicago, new york city, washington). HINT: Use a while loop to handle invalid inputs
@@ -82,7 +83,7 @@ def get_filters():
     }
 
     month = input(
-        "Enter the first 3 letters of the month you want to analyze the data for. For example, if you want January data, enter 'jan' (without the quotes). If you want August, enter 'aug' and so on. Enter 'all' to disable this filter.: "
+        "Enter the first 3 letters of the month you want to analyze the data for. For example, if you want January data, enter 'jan' (without the quotes). If you want June, enter 'jun' and so on. Enter 'all' to disable this filter.: "
     )
 
     while month.lower() not in valid_months:
@@ -122,7 +123,7 @@ def get_filters():
     }
 
     day = input(
-        "Enter the name of the day of the week. For example, if you want Monday, enter 'mon' (without the quotes). Enter 'all' to disable this filter.: "
+        "Enter the name of the day of the week. For example, if you want Friday, enter 'fri' (without the quotes). Enter 'all' to disable this filter.: "
     )
 
     while day.lower() not in valid_days:
@@ -154,6 +155,59 @@ def load_data(city, month, day):
     Returns:
         df - Pandas DataFrame containing city data filtered by month and day
     """
+
+    if city == "new york":
+        city = "new york city"
+
+    """ current_path = os.getcwd()
+    print("Current path:", current_path)
+    print(CITY_DATA.get(city)) """
+
+    df = pd.read_csv(CITY_DATA.get(city))
+
+    # Convert Start Time column to datetime format
+    df["Start Time"] = pd.to_datetime(df["Start Time"])
+
+    # Filter by month if applicable
+    if month != "all":
+        # Extract month from Start Time column
+        df["Month"] = df["Start Time"].dt.month
+        # Filter by month
+        month_dict = {
+            "jan": 1,
+            "feb": 2,
+            "mar": 3,
+            "apr": 4,
+            "may": 5,
+            "jun": 6,
+            "jul": 7,
+            "aug": 8,
+            "sep": 9,
+            "oct": 10,
+            "nov": 11,
+            "dec": 12,
+        }
+        month_num = month_dict.get(month)
+        df = df[df["Month"] == month_num]
+
+    # Filter by day if applicable
+    if day != "all":
+        # Extract day of week from Start Time column
+        df["Day"] = df["Start Time"].dt.dayofweek
+        # Filter by day (Monday=0, Sunday=6)
+        day_dict = {
+            "mon": 0,
+            "tue": 1,
+            "wed": 2,
+            "thu": 3,
+            "fri": 4,
+            "sat": 5,
+            "sun": 6,
+        }
+        day_num = day_dict.get(day)
+        df = df[df["Day"] == day_num]
+
+    # print(df.head())
 
     return df
 
@@ -223,16 +277,16 @@ def user_stats(df):
 def main():
     while True:
         city, month, day = get_filters()
-        # df = load_data(city, month, day)
+        df = load_data(city, month, day)
 
         # time_stats(df)
         # station_stats(df)
         # trip_duration_stats(df)
         # user_stats(df)
 
-        # restart = input("\nWould you like to restart? Enter yes or no.\n")
-        # if restart.lower() != "yes":
-        #     break
+        restart = input("\nWould you like to restart? Enter yes or no.\n")
+        if restart.lower() != "yes":
+            break
 
 
 if __name__ == "__main__":
