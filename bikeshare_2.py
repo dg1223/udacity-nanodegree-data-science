@@ -217,34 +217,42 @@ def load_data(city, month, day):
     return df
 
 
-def time_stats(df):
+def time_stats(df, month, day):
     """Displays statistics on the most frequent times of travel."""
 
     print("\nCalculating The Most Frequent Times of Travel...\n")
     start_time = time.time()
 
     # display the most common month
-
-    # Extract month from Start Time column
     df["Month"] = df["Start Time"].dt.month
-    # Find the most common month
     common_month = df["Month"].mode()[0]
-    # Convert month number to month name
     common_month_name = calendar.month_name[common_month]
-    print("The most common month: ", common_month_name)
+
+    if month != "all":
+        print(
+            "The most common month is '{}' because this is the only month chosen as a filter".format(
+                common_month_name
+            )
+        )
+    else:
+        print("The most common month:", common_month_name)
 
     # display the most common day of week
     df["Day of Week"] = df["Start Time"].dt.dayofweek
-    # Find the most common day of week
     common_day = df["Day of Week"].mode()[0]
-    # Convert day number to day name
     common_day_name = calendar.day_name[common_day]
-    print("The most common day of week: ", common_day_name)
+
+    if day != "all":
+        print(
+            "The most common day of week is '{}' because this is the only day chosen as a filter".format(
+                common_day_name
+            )
+        )
+    else:
+        print("The most common day of week:", common_day_name)
 
     # display the most common start hour
-    # Extract hour from Start Time column
     df["Hour"] = df["Start Time"].dt.hour
-    # Find the most common start hour
     common_hour = df["Hour"].mode()[0]
     print("The most common start hour: ", common_hour)
 
@@ -356,25 +364,28 @@ def main():
         city, month, day = get_filters()
         df = load_data(city, month, day)
 
-        show_raw_data = input(
-            "\nWould you like to see 5 lines of raw data? Enter yes or no.\n"
-        )
-        show_raw_data = show_raw_data.lower()
-        start_row = 0
-        while show_raw_data == "yes":
-            print("\n")
-            print(df.iloc[start_row : start_row + 5])
-            start_row += 5
-            show_raw_data = input(
-                "\nWould you like to see the next 5 lines of raw data? Enter yes or no.\n"
-            )
-            show_raw_data = show_raw_data.lower()
-            if start_row >= len(df) or show_raw_data != "yes":
-                break
-
         # handle exception when no data is available
         if df.size > 0:
-            time_stats(df)
+            # if there is data, ask if the user wants to see raw data first
+            show_raw_data = input(
+                "\nWould you like to see 5 lines of raw data? Enter yes or no.\n"
+            )
+            show_raw_data = show_raw_data.lower()
+            start_row = 0
+            while show_raw_data == "yes":
+                print("\n")
+                print(df.iloc[start_row : start_row + 5])
+                start_row += 5
+                show_raw_data = input(
+                    "\nWould you like to see the next 5 lines of raw data? Enter yes or no.\n"
+                )
+                show_raw_data = show_raw_data.lower()
+                if start_row >= len(df) or show_raw_data != "yes":
+                    break
+
+            # show stats
+            # if df.size > 0:
+            time_stats(df, month, day)
             station_stats(df)
             trip_duration_stats(df)
             user_stats(df)
