@@ -11,6 +11,32 @@ CITY_DATA = {
 }
 
 
+def validate_input(user_input, valid_values, value_dict, prompt):
+    """
+    Validates the user input against a list of valid values.
+
+    Args:
+        user_input (str): User input to validate.
+        valid_values (list): List of valid values.
+        value_dict (dict): Mapping of valid values to display values.
+        prompt (str): Prompt message to display.
+
+    Returns:
+        str: The validated user input.
+    """
+    while user_input.lower() not in valid_values:
+        print("\n")
+        print(f"Invalid input. Please enter a valid value as instructed.")
+        print("\n")
+        user_input = input(prompt)
+
+    print("\n")
+    chosen_value = value_dict.get(user_input, "Invalid value")
+    print("You have chosen:", chosen_value)
+    print("\n")
+    return user_input
+
+
 def get_filters():
     """
     Asks user to specify a city, month, and day to analyze.
@@ -32,23 +58,9 @@ def get_filters():
         "washington": "washington",
     }
 
-    # get user input for city (chicago, new york city, washington). HINT: Use a while loop to handle invalid inputs
-    city = input(
-        "Enter the name of the city you want to analyze. Choose any of these 3 cities: chicago, new york, washington. Please enter the name exactly as shown.: "
-    )
+    city_prompt = "Enter the name of the city you want to analyze. Choose any of these 3 cities: chicago, new york, washington. Please enter the name exactly as shown.: "
 
-    while city.lower() not in valid_cities:
-        print("\n")
-        print("Invalid city. Please enter a valid city as instructed.")
-        print("\n")
-        city = input(
-            "Enter the name of the city you want to analyze. Choose any of these 3 cities: chicago, new york, washington. Please enter the name exactly as shown.: "
-        )
-
-    print("\n")
-    chosen_city = city_dict.get(city, "Invalid city")
-    print("You have chosen:", chosen_city)
-    print("\n")
+    city = validate_input(input(city_prompt), valid_cities, city_dict, city_prompt)
 
     # get user input for month (all, january, february, ... , june)
     valid_months = [
@@ -83,22 +95,9 @@ def get_filters():
         "all": "All",
     }
 
-    month = input(
-        "Enter the first 3 letters of the month you want to analyze the data for. For example, if you want January data, enter 'jan' (without the quotes). If you want June, enter 'jun' and so on. Enter 'all' to disable this filter.: "
-    )
+    month_prompt = "Enter the first 3 letters of the month you want to analyze the data for. For example, if you want January data, enter 'jan' (without the quotes). If you want June, enter 'jun' and so on. Enter 'all' to disable this filter.: "
 
-    while month.lower() not in valid_months:
-        print("\n")
-        print("Invalid month. Please enter a valid month as instructed.")
-        print("\n")
-        month = input(
-            "Enter the first 3 letters of the month you want to analyze the data for. For example, if you want January data, enter 'jan' (without the quotes). If you want August, enter 'aug' and so on. Enter 'all' to disable this filter.: "
-        )
-
-    print("\n")
-    chosen_month = month_dict.get(month, "Invalid month")
-    print("You have chosen:", chosen_month)
-    print("\n")
+    month = validate_input(input(month_prompt), valid_months, month_dict, month_prompt)
 
     # get user input for day of week (all, monday, tuesday, ... sunday)
     valid_days = [
@@ -123,24 +122,16 @@ def get_filters():
         "all": "All",
     }
 
-    day = input(
-        "Enter the name of the day of the week. For example, if you want Friday, enter 'fri' (without the quotes). Enter 'all' to disable this filter.: "
-    )
+    day_prompt = "Enter the name of the day of the week. For example, if you want Friday, enter 'fri' (without the quotes). Enter 'all' to disable this filter.: "
 
-    while day.lower() not in valid_days:
-        print("\n")
-        print("Invalid day. Please enter a valid day of the week as instructed.")
-        print("\n")
-        day = input(
-            "Enter the name of the day of the week. For example, if you want Monday, enter 'mon' (without the quotes). Enter 'all' to disable this filter.: "
-        )
-    print("\n")
-    chosen_day = day_dict.get(day, "Invalid day")
-    print("You have chosen:", chosen_day)
-    print("\n")
+    day = validate_input(input(day_prompt), valid_days, day_dict, day_prompt)
 
     print("-" * 40)
-    print("You chose: {}, {}, {}".format(chosen_city, chosen_month, chosen_day))
+    print(
+        "You chose: {}, {}, {}".format(
+            city_dict.get(city), month_dict.get(month), day_dict.get(day)
+        )
+    )
     print("\n")
     return city, month, day
 
